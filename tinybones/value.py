@@ -10,9 +10,9 @@ class Value:
 
     def __str__(self) -> str:
         return str(self.value)
-
+    
     def __repr__(self) -> str:
-        return f'Value({self})'
+        return str(self)
 
     def __eq__(self, other) -> bool:
         return self.value == other
