@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, Dict, KeysView, List, Mapping, Sequence, Union
+from typing import Any, Dict, ItemsView, Iterator, KeysView, Mapping, Sequence, Union, ValuesView
 from tinybones.column import Column
 
 from tinybones.row import Row
@@ -20,8 +20,9 @@ class Grid:
         for col, values in columns.items():
             self.add_column(col, values)
 
-    def _store_rows(self, rows: Sequence, column_names: Sequence[str]) -> None:
-        ...
+    def _store_rows(self, rows: Sequence[Mapping[str, Any]]) -> None:
+        for row in rows:
+            self.add_row(row)
 
     def __str__(self) -> str:
         return str(dict(self._columns))
@@ -55,6 +56,12 @@ class Grid:
             return self._rows[key]
         raise ValueError('key must be str or int')
     
+    def __iter__(self) -> Iterator:
+        return iter(self._rows)
+    
+    def __contains__(self, value) -> bool:
+        return value in self.columns.values() or value in self.rows.values()
+    
     def add_column(self, name: str, values: Sequence) -> None:
         for i, val in enumerate(values):
             v = Value(val)
@@ -80,5 +87,26 @@ class Grid:
     def keys(self) -> KeysView:
         both = {**self._columns, **self._rows}
         return both.keys()
+    
+    def items(self) -> ItemsView:
+        both = {**self._columns, **self._rows}
+        return both.items()
+    
+    def values(self) -> ValuesView:
+        both = {**self._columns, **self._rows}
+        return both.values()
+    
+    def get(self, key, default=None, /) -> Any:
+        if key not in self.keys():
+            return default
+        return self[key]
+    
+    def __eq__(self, other: Mapping) -> bool:
+        return {**self._columns, **self._rows} == other
+
+    def __ne__(self, other: Mapping) -> bool:
+        return {**self._columns, **self._rows} != other
+    
+    
 
     
